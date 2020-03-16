@@ -147,6 +147,15 @@ func (p *Proxy) serve(proxyHandler *httputil.ReverseProxy, stopCh <-chan struct{
 }
 
 func (p *Proxy) RoundTrip(req *http.Request) (*http.Response, error) {
+	// Check if request is unauthed and directed to /version (dashboard special behavior)
+	auth := strings.TrimSpace(req.Header.Get("Authorization"))
+	if auth == "" {
+		if req.URL != nil && req.URL.Path == "/version" {
+			klog.V(2).Info("handling unauthed request to /version")
+			return p.noAuthClientTransport.RoundTrip(req)
+		}
+	}
+
 	// Clone the request here since successfully authenticating the request
 	// deletes those auth headers
 	reqCpy := utilnet.CloneRequest(req)
