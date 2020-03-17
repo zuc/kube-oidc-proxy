@@ -153,8 +153,8 @@ func (p *Proxy) RoundTrip(req *http.Request) (*http.Response, error) {
 
 	// auth request and handle unauthed
 	info, ok, err := p.oidcRequestAuther.AuthenticateRequest(reqCpy)
-	klog.V(2).Infof("AuthenticateRequest failed with err: %s", err)
 	if err != nil {
+		klog.V(2).Infof("AuthenticateRequest failed with err: %s", err)
 
 		// attempt to passthrough request if valid token
 		if p.options.TokenReview {
